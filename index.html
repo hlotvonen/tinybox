@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TinyBox demo</title>
+  <script src="tiny-box.js" defer></script>
+  <style>
+    html, body {
+      width:100%;
+      height:100%;
+      margin:0;
+    }
+   
+  </style>
+</head>
+<body>
+  
+  <tiny-box>
+    <template>
+        <style>
+          .container {
+            height: 100%;
+            width: 100%;
+            display: grid;
+            place-content: center;
+            background:
+              /* evening sunset over ocean horizon */
+              linear-gradient(
+                lch(40 50 290),
+                lch(60 50 60) 50%,
+                lch(60 55 30) 70%,
+                lch(20 20 290) 70.2%,
+                lch(40 30 60)
+              )
+            ;
+          }
+          p {
+            font-size: clamp(16px, 2vw, 32px);
+            color: lch(10 40 290);
+          }
+          html, body {
+            width:100%;
+            height:100%;
+            margin:0;
+          }
+        </style>
+        <div class="container">
+          <!-- Edit the content! -->
+          <p>
+            tiny HTML & CSS sandbox =)
+          </p>
+        </div>
+        <script>
+          document.querySelector('p').style.background = 'yellow';
+        </script>
+    </template>
+  </tiny-box>
+ 
+
+</body>
+</html>
