@@ -38,6 +38,7 @@ class TinyBox extends HTMLElement {
           padding: 8px;
           resize: vertical;
           overflow: auto;
+          direction:rtl;
         }
         textarea {
           width: 100%;
@@ -53,6 +54,8 @@ class TinyBox extends HTMLElement {
           resize: none;
           overflow: auto;
           white-space: pre;
+          text-wrap:wrap;
+          direction:ltr;
         }
         iframe {
           border: none;
@@ -168,8 +171,6 @@ class TinyBox extends HTMLElement {
         .join('');
       this.htmlInput.value = this.formatCode(htmlContent);
 
-    } else {
-      console.log("No template found inside TinyBox component");
     }
   }
 
@@ -198,9 +199,8 @@ class TinyBox extends HTMLElement {
   }
 
   updateOutput() {
-    const doc = this.outputFrame.contentDocument;
-    doc.open();
-    doc.write(`
+    // Reload iframe to clear previous context
+    this.outputFrame.srcdoc = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -213,8 +213,7 @@ class TinyBox extends HTMLElement {
           <script>${this.jsInput.value}</script>
         </body>
       </html>
-    `);
-    doc.close();
+    `;
   }
 
   handleTab(event) {
@@ -222,8 +221,35 @@ class TinyBox extends HTMLElement {
       event.preventDefault();
       const target = event.target;
       const start = target.selectionStart;
-      const end = target.selectionEnd;     
-      document.execCommand("insertText", false, "  ");
+      const end = target.selectionEnd;
+
+      if (event.shiftKey) {
+        // Unindent: remove up to 2 spaces from the beginning of the line
+        const textBefore = target.value.substring(0, start);
+        const lineStart = textBefore.lastIndexOf('\n') + 1;
+        const lineEnd = target.value.indexOf('\n', start);
+        const currentLine = target.value.substring(lineStart, lineEnd === -1 ? target.value.length : lineEnd);
+
+        let removed = 0;
+        if (currentLine.startsWith('  ')) {
+          removed = 2;
+          target.setSelectionRange(lineStart, lineStart + 2);
+          document.execCommand("delete");
+        } else if (currentLine.startsWith(' ')) {
+          removed = 1;
+          target.setSelectionRange(lineStart, lineStart + 1);
+          document.execCommand("delete");
+        }
+
+        if (removed > 0) {
+          const newStart = Math.max(lineStart, start - removed);
+          const newEnd = Math.max(lineStart, end - removed);
+          target.setSelectionRange(newStart, newEnd);
+        }
+      } else {
+        // Indent: insert 2 spaces
+        document.execCommand("insertText", false, "  ");
+      }
     }
   }
 
