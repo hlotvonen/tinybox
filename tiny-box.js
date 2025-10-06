@@ -199,8 +199,11 @@ class TinyBox extends HTMLElement {
   }
 
   updateOutput() {
-    // Reload iframe to clear previous context
-    this.outputFrame.srcdoc = `
+    if (this.blobUrl) {
+      URL.revokeObjectURL(this.blobUrl);
+    }
+
+    const blob = new Blob([`
       <!DOCTYPE html>
       <html>
         <head>
@@ -210,10 +213,13 @@ class TinyBox extends HTMLElement {
         </head>
         <body>
           ${this.htmlInput.value}
-          <script>${this.jsInput.value}</script>
+          <script>${this.jsInput.value}<\/script>
         </body>
       </html>
-    `;
+    `], { type: 'text/html' });
+
+    this.blobUrl = URL.createObjectURL(blob);
+    this.outputFrame.src = this.blobUrl;
   }
 
   handleTab(event) {
